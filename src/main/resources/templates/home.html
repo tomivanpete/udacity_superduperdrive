@@ -80,7 +80,7 @@
                                     </tr>
                                     <tr th:each="note : ${notes}">
                                         <td>
-                                            <button type="button" class="btn btn-success">Edit</button>
+                                            <button type="button" class="btn btn-success" th:noteId="${note.id}" th:noteTitle="${note.noteTitle}" th:noteDescription="${note.noteDescription}" onclick="showNoteModal(this.getAttribute('noteId'), this.getAttribute('noteTitle'), this.getAttribute('noteDescription'))">Edit</button>
                                             <a class="btn btn-danger">Delete</a>
                                         </td>
                                         <th scope="row"><span th:text="${note.noteTitle}">Example Note Title</span></th>
@@ -101,7 +101,7 @@
                                     </div>
                                     <div class="modal-body">
                                         <form action="#" th:object="${note}" th:action="@{'/notes'}" method="POST">
-                                            <input type="hidden" name="noteId" id="note-id">
+                                            <input type="hidden" th:field="*{id}" name="noteId" id="note-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
                                                 <input type="text" th:field="*{noteTitle}" name="noteTitle" class="form-control" id="note-title" maxlength="20" required>

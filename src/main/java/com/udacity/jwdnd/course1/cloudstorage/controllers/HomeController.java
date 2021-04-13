@@ -33,7 +33,7 @@ public class HomeController {
     public String addNote(@ModelAttribute("note") Note note, Model model, Authentication auth) {
         User currentUser = userService.getUser(auth.getName());
         note.setUserId(currentUser.getId());
-        noteService.addNote(note);
+        noteService.saveNote(note);
         model.addAttribute("success", true);
         return "result";
     }

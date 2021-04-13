@@ -26,12 +26,14 @@ public class NoteService {
         return noteMapper.getNote(noteId);
     }
 
-    public void addNote(Note note) {
-        noteMapper.insert(note);
-    }
-
-    public void updateNote(Note note) {
-        noteMapper.update(note);
+    public void saveNote(Note note) {
+        // If the note does not have an ID, then a new entry must be added to the DB.
+        // Else, the existing note is updated.
+        if (note.getId() == null) {
+            noteMapper.insert(note);
+        } else {
+            noteMapper.update(note);
+        }
     }
 
     public void deleteNote(int noteId) {
