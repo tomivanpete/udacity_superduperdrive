@@ -7,9 +7,7 @@ import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class HomeController {
@@ -34,6 +32,13 @@ public class HomeController {
         User currentUser = userService.getUser(auth.getName());
         note.setUserId(currentUser.getId());
         noteService.saveNote(note);
+        model.addAttribute("success", true);
+        return "result";
+    }
+
+    @PostMapping("/notes/delete")
+    public String deleteNote(@ModelAttribute("note") Note note, Model model) {
+        noteService.deleteNote(note.getId());
         model.addAttribute("success", true);
         return "result";
     }
