@@ -26,12 +26,12 @@ public class CredentialService {
         return credentialMapper.getCredential(credentialId);
     }
 
-    public void addCredential(Credential credential) {
-        credentialMapper.insert(credential);
-    }
-
-    public void updateCredential(Credential credential) {
-        credentialMapper.update(credential);
+    public void saveCredential(Credential credential) {
+        if (credential.getId() == null) {
+            credentialMapper.insert(credential);
+        } else {
+            credentialMapper.update(credential);
+        }
     }
 
     public void deleteCredential(int credentialId) {
