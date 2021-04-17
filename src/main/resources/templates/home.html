@@ -162,7 +162,7 @@
                         </tr>
                         <tr th:each="credential : ${credentials}">
                             <td>
-                                <button type="button" class="btn btn-success" th:credentialId="${credential.id}" th:credentialUrl="${credential.url}" th:credentialUsername="${credential.username}" th:credentialPassword="${credential.password}" onclick="showCredentialModal(this.getAttribute('credentialId'), this.getAttribute('credentialUrl'), this.getAttribute('credentialUsername'), this.getAttribute('credentialPassword'))">Edit</button>
+                                <button type="button" class="btn btn-success" th:credentialId="${credential.id}" th:credentialUrl="${credential.url}" th:credentialUsername="${credential.username}" onclick="showCredentialModal(this.getAttribute('credentialId'), this.getAttribute('credentialUrl'), this.getAttribute('credentialUsername'))">Edit</button>
                                 <a class="btn btn-danger" th:credentialId="${credential.id}" onclick="showCredentialDeleteModal(this.getAttribute('credentialId'))">Delete</a>
                             </td>
                             <th scope="row"><span th:text="${credential.url}">Example Credential URL</span></th>
@@ -216,15 +216,13 @@
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <div class="modal-body">
-                                <form action="#" th:object="${credential}" th:action="@{'/credentials/delete'}" method="POST">
-                                    <input type="hidden" th:field="*{id}" name="credentialId" id="credential-delete-id">
-                                    <button id="credentialDelete" type="submit" class="d-none"></button>
-                                </form>
-                            </div>
+                            <form action="#" th:object="${credential}" th:action="@{'/credentials/delete'}" method="POST">
+                                <input type="hidden" th:field="*{id}" name="credentialId" id="credential-delete-id">
+                                <button id="credentialDelete" type="submit" class="d-none"></button>
+                            </form>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" onclick="$('#credentialDelete').click();">Confirm Delete</button>
+                                <button type="button" class="btn btn-danger" onclick="$('#credentialDelete').click();">Confirm Delete</button>
                             </div>
                         </div>
                     </div>
@@ -249,11 +247,15 @@
             }
 
             // For opening the credentials modal
-            function showCredentialModal(credentialId, url, username, password) {
+            function showCredentialModal(credentialId, url, username) {
                 $('#credential-id').val(credentialId ? credentialId : '');
                 $('#credential-url').val(url ? url : '');
                 $('#credential-username').val(username ? username : '');
-                $('#credential-password').val(password ? password : '');
+
+                if (credentialId) {
+                    getDecryptedPassword(credentialId);
+                }
+
                 $('#credentialModal').modal('show');
             }
 
@@ -267,6 +269,14 @@
             function showCredentialDeleteModal(credentialId) {
                 $('#credential-delete-id').val(credentialId ? credentialId : '');
                 $('#credentialDeleteModal').modal('show');
+            }
+
+            // Retrieve decrypted passwords from the server
+            async function getDecryptedPassword(credentialId) {
+                let response = await fetch('/credentials/decrypt/' + credentialId);
+                let decryptedPassword = await response.text();
+
+                $('#credential-password').val(decryptedPassword);
             }
         </script>
 </body>
