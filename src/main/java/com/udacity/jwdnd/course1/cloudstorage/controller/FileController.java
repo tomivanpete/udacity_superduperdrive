@@ -1,5 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.exception.DuplicateFileNameException;
+import com.udacity.jwdnd.course1.cloudstorage.exception.InvalidUserException;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
@@ -28,7 +30,7 @@ public class FileController {
     }
 
     @PostMapping("/files")
-    public String uploadFile(@RequestParam("fileUpload")MultipartFile file, Authentication auth, Model model) throws IOException {
+    public String uploadFile(@RequestParam("fileUpload")MultipartFile file, Authentication auth, Model model) throws IOException, DuplicateFileNameException {
         User currentUser = userService.getUser(auth.getName());
         fileService.saveFile(file, currentUser.getId());
         model.addAttribute("success", true);
@@ -38,8 +40,14 @@ public class FileController {
 
     @GetMapping("/files/{fileId}")
     @ResponseBody
-    public ResponseEntity<byte[]> getFile(@PathVariable int fileId) {
+    public ResponseEntity<byte[]> getFile(@PathVariable int fileId, Authentication auth) throws InvalidUserException {
+        User currentUser = userService.getUser(auth.getName());
         File file = fileService.getFileById(fileId);
+
+        if (!file.getUserId().equals(currentUser.getId())) {
+            throw new InvalidUserException("File does not belong to current user.");
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(file.getContentType()));
 
@@ -47,9 +55,17 @@ public class FileController {
     }
 
     @PostMapping("/files/delete")
-    public String deleteFile(@ModelAttribute("file")File file, Model model) {
+    public String deleteFile(@ModelAttribute("file")File file, Model model, Authentication auth) throws InvalidUserException {
+        User currentUser = userService.getUser(auth.getName());
+        File fileToDelete = fileService.getFileById(file.getId());
+
+        if (!fileToDelete.getUserId().equals(currentUser.getId())) {
+            throw new InvalidUserException("File does not belong to current user.");
+        }
+
         fileService.deleteFile(file.getId());
         model.addAttribute("success", true);
+
         return "result";
     }
 }

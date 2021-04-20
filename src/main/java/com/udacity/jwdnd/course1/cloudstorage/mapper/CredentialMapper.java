@@ -15,11 +15,11 @@ public interface CredentialMapper {
     List<Credential> getCredentialsByUserId(int userId);
 
     @Insert("INSERT INTO CREDENTIALS (url, username, key, password, userid) VALUES (#{url}, #{username}, #{key}, #{password}, #{userId})")
-    void insert(Credential credential);
+    int insert(Credential credential);
 
     @Update("UPDATE CREDENTIALS SET url = #{url}, username = #{username}, key = #{key}, password = #{password} WHERE id = #{id} AND userid = #{userId}")
-    void update(Credential credential);
+    int update(Credential credential);
 
     @Delete("DELETE FROM CREDENTIALS WHERE id = #{credentialId}")
-    void delete(int credentialId);
+    int delete(int credentialId);
 }

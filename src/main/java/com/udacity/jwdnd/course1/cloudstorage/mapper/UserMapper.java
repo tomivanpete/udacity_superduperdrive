@@ -14,8 +14,8 @@ public interface UserMapper {
     int insert(User user);
 
     @Update("UPDATE USERS SET username = #{username}, salt = #{salt}, password = #{password}, firstname = #{firstname}, lastname = #{lastname} WHERE id = #{id}")
-    void update(User user);
+    int update(User user);
 
     @Delete("DELETE FROM USERS WHERE id = #{userId}")
-    void delete(int userId);
+    int delete(int userId);
 }

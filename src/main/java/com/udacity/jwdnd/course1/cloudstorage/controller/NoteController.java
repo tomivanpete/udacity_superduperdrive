@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.exception.InvalidUserException;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.service.NoteService;
@@ -27,13 +28,22 @@ public class NoteController {
         note.setUserId(currentUser.getId());
         noteService.saveNote(note);
         model.addAttribute("success", true);
+
         return "result";
     }
 
     @PostMapping("/notes/delete")
-    public String deleteNote(@ModelAttribute("note") Note note, Model model) {
+    public String deleteNote(@ModelAttribute("note") Note note, Model model, Authentication auth) throws InvalidUserException {
+        User currentUser = userService.getUser(auth.getName());
+        Note noteToDelete = noteService.getNoteById(note.getId());
+
+        if (!noteToDelete.getUserId().equals(currentUser.getId())) {
+            throw new InvalidUserException("Note does not belong to current user.");
+        }
+
         noteService.deleteNote(note.getId());
         model.addAttribute("success", true);
+
         return "result";
     }
 }

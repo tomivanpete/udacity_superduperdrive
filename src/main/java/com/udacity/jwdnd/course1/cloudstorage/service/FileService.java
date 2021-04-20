@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.service;
 
+import com.udacity.jwdnd.course1.cloudstorage.exception.DuplicateFileNameException;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
@@ -28,17 +29,21 @@ public class FileService {
         return fileMapper.getFileById(fileId);
     }
 
-    public void saveFile(MultipartFile mpFile, int userId) throws IOException {
+    public int saveFile(MultipartFile mpFile, int userId) throws IOException, DuplicateFileNameException {
+        if (fileMapper.isDuplicateFilename(mpFile.getOriginalFilename(), userId)) {
+            throw new DuplicateFileNameException("Cannot have more than 1 file with the same name.");
+        }
+
         File fileToSave = new File();
         fileToSave.setUserId(userId);
         fileToSave.setFilename(mpFile.getOriginalFilename());
         fileToSave.setContentType(mpFile.getContentType());
         fileToSave.setFileSize(String.valueOf(mpFile.getSize()));
         fileToSave.setFileData(mpFile.getBytes());
-        fileMapper.insert(fileToSave);
+        return fileMapper.insert(fileToSave);
     }
 
-    public void deleteFile(int fileId) {
-        fileMapper.delete(fileId);
+    public int deleteFile(int fileId) {
+        return fileMapper.delete(fileId);
     }
 }
