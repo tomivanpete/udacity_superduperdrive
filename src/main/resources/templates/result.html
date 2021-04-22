@@ -9,16 +9,16 @@
         <title>Result</title>
     </head>
     <body class="p-3 mb-2 bg-light text-black">
-        <div class="container justify-content-center w-50 p-3" style="margin-top: 5em;">
-            <div th:if="${success}" class="alert alert-success fill-parent">
+        <div class="container justify-content-center w-50 p-3" id="msg-container" style="margin-top: 5em;">
+            <div th:if="${success}" id="success-msg" class="alert alert-success fill-parent">
                 <h1 class="display-5">Success</h1>
                 <span>Your changes were successfully saved. Click <a href="/home">here</a> to continue.</span>
             </div>
-            <div th:if="${error}" class="alert alert-danger fill-parent">
+            <div th:if="${error}" id="error-msg-generic" class="alert alert-danger fill-parent">
                 <h1 class="display-5">Error</h1>
                 <span>Your changes were not saved. Click <a href="/home">here</a> to continue.</span>
             </div>
-            <div th:if="${errorWithMsg}" class="alert alert-danger fill-parent">
+            <div th:if="${errorWithMsg}" id="error-msg-specific" class="alert alert-danger fill-parent">
                 <h1 class="display-5">Error</h1>
                 <span th:text="${errorMsg}">Example Error Message</span>
                 <span>Click <a href="/home">here</a> to continue.</span>
