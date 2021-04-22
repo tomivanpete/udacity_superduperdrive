@@ -41,7 +41,12 @@ public class CredentialController {
         String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), encodedKey);
         credential.setPassword(encryptedPassword);
 
-        credentialService.saveCredential(credential);
+        int rowsUpdated = credentialService.saveCredential(credential);
+
+        if (rowsUpdated < 1) {
+            throw new RuntimeException("Could not save Credential to DB");
+        }
+
         model.addAttribute("success", true);
 
         return "result";

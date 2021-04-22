@@ -26,7 +26,12 @@ public class NoteController {
     public String saveNote(@ModelAttribute("note") Note note, Model model, Authentication auth) {
         User currentUser = userService.getUser(auth.getName());
         note.setUserId(currentUser.getId());
-        noteService.saveNote(note);
+        int rowsUpdated = noteService.saveNote(note);
+
+        if (rowsUpdated < 1) {
+            throw new RuntimeException("Could not save Note to DB");
+        }
+
         model.addAttribute("success", true);
 
         return "result";

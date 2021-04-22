@@ -26,22 +26,22 @@ public class ExceptionHandlingController {
     }
 
     @ExceptionHandler(DuplicateFileNameException.class)
-    public String duplicateFilenameExceptionHandler(Model model) {
+    public String duplicateFilenameExceptionHandler(Model model, DuplicateFileNameException ex) {
         model.addAttribute("errorWithMsg", true);
-        model.addAttribute("errorMsg", "Cannot have more than 1 file with the same name.");
+        model.addAttribute("errorMsg", ex.getMessage());
         return "result";
     }
 
     @ExceptionHandler(InvalidUserException.class)
-    public String invalidUserExceptionHandler(Model model, InvalidUserException invalidUserException) {
+    public String invalidUserExceptionHandler(Model model, InvalidUserException ex) {
         model.addAttribute("errorWithMsg", true);
-        model.addAttribute("errorMsg", invalidUserException.getMessage());
+        model.addAttribute("errorMsg", ex.getMessage());
         return "result";
     }
 
     @ExceptionHandler(Exception.class)
-    public String baseExceptionHandler(Model model, Exception exception) {
-        logger.error(exception.getMessage(), exception);
+    public String baseExceptionHandler(Model model, Exception ex) {
+        logger.error(ex.getMessage(), ex);
         model.addAttribute("error", true);
         return "result";
     }
