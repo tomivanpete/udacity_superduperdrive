@@ -110,8 +110,8 @@
                                 <button type="button" class="btn btn-success" th:noteId="${note.id}" th:noteTitle="${note.noteTitle}" th:noteDescription="${note.noteDescription}" onclick="showNoteModal(this.getAttribute('noteId'), this.getAttribute('noteTitle'), this.getAttribute('noteDescription'))">Edit</button>
                                 <a class="btn btn-danger" th:noteId="${note.id}" onclick="showNoteDeleteModal(this.getAttribute('noteId'))">Delete</a>
                             </td>
-                            <th scope="row"><span th:text="${note.noteTitle}">Example Note Title</span></th>
-                            <td><span th:text="${note.noteDescription}">Example Note Description</span></td>
+                            <th class="noteTitle" scope="row"><span th:text="${note.noteTitle}">Example Note Title</span></th>
+                            <td class="noteDescription"><span th:text="${note.noteDescription}">Example Note Description</span></td>
                         </tr>
                         </tbody>
                     </table>
