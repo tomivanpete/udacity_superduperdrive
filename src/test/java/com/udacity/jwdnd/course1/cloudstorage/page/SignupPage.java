@@ -68,6 +68,9 @@ public class SignupPage {
         JavascriptExecutor js = (JavascriptExecutor) this.driver;
         js.executeScript("arguments[0].click()", loginLink);
 
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.titleIs("Login"));
+
         return new LoginPage(driver);
     }
 

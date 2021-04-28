@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
 import com.github.javafaker.Faker;
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.page.HomePage;
 import com.udacity.jwdnd.course1.cloudstorage.page.LoginPage;
@@ -56,18 +57,6 @@ class CloudStorageApplicationTests {
 		testUserPassword = faker.internet().password();
 	}
 
-	private HomePage signupUserAndLogin() {
-		createTestData();
-
-		driver.get("http://localhost:" + this.port + "/signup");
-		SignupPage signupPage = new SignupPage(driver);
-
-		signupPage.createUser(testUserFirstname, testUserLastname, testUserUsername, testUserPassword);
-		LoginPage loginPage = signupPage.clickLoginLink();
-
-		return loginPage.loginValidUser(testUserUsername, testUserPassword);
-	}
-
 	@Test
 	public void testLoginRedirect() {
 		driver.get("http://localhost:" + this.port + "/");
@@ -98,6 +87,7 @@ class CloudStorageApplicationTests {
 
 		signupPage.createUser(testUserFirstname, testUserLastname, testUserUsername, testUserPassword);
 		Assertions.assertTrue(signupPage.isSuccessMsgDisplayed());
+		signupPage.clickLoginLink();
 	}
 
 	@Test
@@ -115,10 +105,15 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void testSignupLoginLogout() {
-		HomePage homePage = signupUserAndLogin();
+		//HomePage homePage = signupUserAndLogin();
+		testSignupSuccess();
+		driver.navigate().refresh();
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
+
 		Assertions.assertEquals("Home", driver.getTitle());
 
-		LoginPage loginPage = homePage.logout();
+		loginPage = homePage.logout();
 		Assertions.assertEquals("logout-msg", loginPage.getAlertMessageId());
 
 		driver.get("http://localhost:" + this.port + "/home");
@@ -127,19 +122,116 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void testNoteCreate() {
-		HomePage homePage = signupUserAndLogin();
-		Assertions.assertEquals("Home", driver.getTitle());
+		testSignupLoginLogout();
+		driver.navigate().refresh();
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
 
-		String newNoteTitle = "noteTitle";
-		String newNoteDescription = "noteDescription";
-		ResultPage resultPage = homePage.createNewNote(newNoteTitle, newNoteDescription);
+		String noteTitle = "My new note title";
+		String noteDescription = "My new note description";
+		ResultPage resultPage = homePage.createNewNote(noteTitle, noteDescription);
 		Assertions.assertTrue(resultPage.getMessageText().startsWith("Success"));
 
 		homePage = resultPage.clickHomeLink();
 		List<Note> homePageNotes = homePage.getNotes();
 		Assertions.assertEquals(1, homePageNotes.size());
-		Assertions.assertEquals(newNoteTitle, homePageNotes.get(0).getNoteTitle());
-		Assertions.assertEquals(newNoteDescription, homePageNotes.get(0).getNoteDescription());
+		Assertions.assertEquals(noteTitle, homePageNotes.get(0).getNoteTitle());
+		Assertions.assertEquals(noteDescription, homePageNotes.get(0).getNoteDescription());
+		homePage.logout();
+	}
+
+	@Test
+	public void testNoteEdit() {
+		testNoteCreate();
+		driver.navigate().refresh();
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
+
+		String noteTitle = "Updated note title";
+		String noteDescription = "Updated note description";
+		ResultPage resultPage = homePage.editNote(0, noteTitle, noteDescription);
+		Assertions.assertTrue(resultPage.getMessageText().startsWith("Success"));
+
+		homePage = resultPage.clickHomeLink();
+		List<Note> homePageNotes = homePage.getNotes();
+		Assertions.assertEquals(1, homePageNotes.size());
+		Assertions.assertEquals(noteTitle, homePageNotes.get(0).getNoteTitle());
+		Assertions.assertEquals(noteDescription, homePageNotes.get(0).getNoteDescription());
+		homePage.logout();
+	}
+
+	@Test
+	public void testNoteDelete() {
+		testNoteCreate();
+		driver.navigate().refresh();
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
+
+		ResultPage resultPage = homePage.deleteNote(0);
+		Assertions.assertTrue(resultPage.getMessageText().startsWith("Success"));
+
+		homePage = resultPage.clickHomeLink();
+		List<Note> homePageNotes = homePage.getNotes();
+		Assertions.assertEquals(0, homePageNotes.size());
+		homePage.logout();
+	}
+
+	@Test
+	public void testCredentialCreate() {
+		testSignupLoginLogout();
+		driver.navigate().refresh();
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
+
+		String url = "https://seleniumunit.tests";
+		String username = "MyUser";
+		String password = "MyPassword";
+		ResultPage resultPage = homePage.createNewCredential(url, username, password);
+		Assertions.assertTrue(resultPage.getMessageText().startsWith("Success"));
+
+		homePage = resultPage.clickHomeLink();
+		List<Credential> homePageCredentials = homePage.getCredentials();
+		Assertions.assertEquals(1, homePageCredentials.size());
+		Assertions.assertEquals(url, homePageCredentials.get(0).getUrl());
+		Assertions.assertEquals(username, homePageCredentials.get(0).getUsername());
+		homePage.logout();
+	}
+
+	@Test
+	public void testCredentialEdit() {
+		testCredentialCreate();
+		driver.navigate().refresh();
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
+
+		String url = "https://seleniumunit.tests/updated";
+		String username = "MyUpdatedUser";
+		String password = "MyUpdatedPassword";
+		ResultPage resultPage = homePage.editCredential(0, url, username, password);
+		Assertions.assertTrue(resultPage.getMessageText().startsWith("Success"));
+
+		homePage = resultPage.clickHomeLink();
+		List<Credential> homePageCredentials = homePage.getCredentials();
+		Assertions.assertEquals(1, homePageCredentials.size());
+		Assertions.assertEquals(url, homePageCredentials.get(0).getUrl());
+		Assertions.assertEquals(username, homePageCredentials.get(0).getUsername());
+		homePage.logout();
+	}
+
+	@Test
+	public void testCredentialDelete() {
+		testCredentialCreate();
+		driver.navigate().refresh();
+		LoginPage loginPage = new LoginPage(driver);
+		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
+
+		ResultPage resultPage = homePage.deleteCredential(0);
+		Assertions.assertTrue(resultPage.getMessageText().startsWith("Success"));
+
+		homePage = resultPage.clickHomeLink();
+		List<Credential> homePageCredentials = homePage.getCredentials();
+		Assertions.assertEquals(0, homePageCredentials.size());
+		homePage.logout();
 	}
 
 }

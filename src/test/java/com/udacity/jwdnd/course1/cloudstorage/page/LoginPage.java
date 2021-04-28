@@ -41,6 +41,9 @@ public class LoginPage {
         JavascriptExecutor js = (JavascriptExecutor) this.driver;
         js.executeScript("arguments[0].click()", submitButton);
 
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.titleIs("Home"));
+
         return new HomePage(driver);
     }
 
