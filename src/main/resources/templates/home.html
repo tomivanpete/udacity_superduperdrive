@@ -110,8 +110,8 @@
                                 <button type="button" class="btn btn-success" th:noteId="${note.id}" th:noteTitle="${note.noteTitle}" th:noteDescription="${note.noteDescription}" onclick="showNoteModal(this.getAttribute('noteId'), this.getAttribute('noteTitle'), this.getAttribute('noteDescription'))">Edit</button>
                                 <a class="btn btn-danger" th:noteId="${note.id}" onclick="showNoteDeleteModal(this.getAttribute('noteId'))">Delete</a>
                             </td>
-                            <th class="noteTitle" scope="row"><span th:text="${note.noteTitle}">Example Note Title</span></th>
-                            <td class="noteDescription"><span th:text="${note.noteDescription}">Example Note Description</span></td>
+                            <th class="note-row note-title" scope="row"><span th:text="${note.noteTitle}">Example Note Title</span></th>
+                            <td class="note-row note-description"><span th:text="${note.noteDescription}">Example Note Description</span></td>
                         </tr>
                         </tbody>
                     </table>
@@ -192,9 +192,9 @@
                                 <button type="button" class="btn btn-success" th:credentialId="${credential.id}" th:credentialUrl="${credential.url}" th:credentialUsername="${credential.username}" onclick="showCredentialModal(this.getAttribute('credentialId'), this.getAttribute('credentialUrl'), this.getAttribute('credentialUsername'))">Edit</button>
                                 <a class="btn btn-danger" th:credentialId="${credential.id}" onclick="showCredentialDeleteModal(this.getAttribute('credentialId'))">Delete</a>
                             </td>
-                            <th scope="row"><span th:text="${credential.url}">Example Credential URL</span></th>
-                            <td><span th:text="${credential.username}">Example Credential Username</span></td>
-                            <td><span th:text="${credential.password}">Example Credential Password</span></td>
+                            <th scope="row" class="credential-row credential-url"><span th:text="${credential.url}">Example Credential URL</span></th>
+                            <td class="credential-row credential-username"><span th:text="${credential.username}">Example Credential Username</span></td>
+                            <td class="credential-row credential-password"><span th:text="${credential.password}">Example Credential Password</span></td>
                         </tr>
                         </tbody>
                     </table>
