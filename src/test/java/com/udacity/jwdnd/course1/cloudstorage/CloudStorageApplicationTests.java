@@ -105,7 +105,6 @@ class CloudStorageApplicationTests {
 
 	@Test
 	public void testSignupLoginLogout() {
-		//HomePage homePage = signupUserAndLogin();
 		testSignupSuccess();
 		driver.navigate().refresh();
 		LoginPage loginPage = new LoginPage(driver);
