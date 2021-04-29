@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.service;
 
 import com.udacity.jwdnd.course1.cloudstorage.exception.DuplicateFileNameException;
+import com.udacity.jwdnd.course1.cloudstorage.exception.InvalidUserException;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
@@ -40,10 +41,16 @@ public class FileService {
         fileToSave.setContentType(mpFile.getContentType());
         fileToSave.setFileSize(String.valueOf(mpFile.getSize()));
         fileToSave.setFileData(mpFile.getBytes());
+
         return fileMapper.insert(fileToSave);
     }
 
-    public int deleteFile(int fileId) {
-        return fileMapper.delete(fileId);
+    public int deleteFile(File file) throws InvalidUserException {
+        File existingFile = fileMapper.getFileById(file.getId());
+        if (!existingFile.getUserId().equals(file.getUserId())) {
+            throw new InvalidUserException("File does not belong to current user.");
+        }
+
+        return fileMapper.delete(file.getId());
     }
 }

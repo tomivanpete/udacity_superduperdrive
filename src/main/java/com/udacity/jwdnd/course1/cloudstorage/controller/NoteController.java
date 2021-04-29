@@ -23,7 +23,7 @@ public class NoteController {
     }
 
     @PostMapping("/notes")
-    public String saveNote(@ModelAttribute("note") Note note, Model model, Authentication auth) {
+    public String saveNote(@ModelAttribute("note") Note note, Model model, Authentication auth) throws InvalidUserException {
         User currentUser = userService.getUser(auth.getName());
         note.setUserId(currentUser.getId());
         int rowsUpdated = noteService.saveNote(note);
@@ -40,13 +40,13 @@ public class NoteController {
     @PostMapping("/notes/delete")
     public String deleteNote(@ModelAttribute("note") Note note, Model model, Authentication auth) throws InvalidUserException {
         User currentUser = userService.getUser(auth.getName());
-        Note noteToDelete = noteService.getNoteById(note.getId());
+        note.setUserId(currentUser.getId());
+        int rowsUpdated = noteService.deleteNote(note);
 
-        if (!noteToDelete.getUserId().equals(currentUser.getId())) {
-            throw new InvalidUserException("Note does not belong to current user.");
+        if (rowsUpdated < 1) {
+            throw new RuntimeException("Could not delete Note from DB");
         }
 
-        noteService.deleteNote(note.getId());
         model.addAttribute("success", true);
 
         return "result";

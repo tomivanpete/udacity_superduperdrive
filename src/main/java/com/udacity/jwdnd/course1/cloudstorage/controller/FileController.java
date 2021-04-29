@@ -57,13 +57,13 @@ public class FileController {
     @PostMapping("/files/delete")
     public String deleteFile(@ModelAttribute("file")File file, Model model, Authentication auth) throws InvalidUserException {
         User currentUser = userService.getUser(auth.getName());
-        File fileToDelete = fileService.getFileById(file.getId());
+        file.setUserId(currentUser.getId());
+        int rowsUpdated = fileService.deleteFile(file);
 
-        if (!fileToDelete.getUserId().equals(currentUser.getId())) {
-            throw new InvalidUserException("File does not belong to current user.");
+        if (rowsUpdated < 1) {
+            throw new RuntimeException("Could not delete File from DB.");
         }
 
-        fileService.deleteFile(file.getId());
         model.addAttribute("success", true);
 
         return "result";

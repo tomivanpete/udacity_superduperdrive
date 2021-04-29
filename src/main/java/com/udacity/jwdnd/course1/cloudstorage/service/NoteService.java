@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.service;
 
+import com.udacity.jwdnd.course1.cloudstorage.exception.InvalidUserException;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
@@ -26,17 +27,27 @@ public class NoteService {
         return noteMapper.getNote(noteId);
     }
 
-    public int saveNote(Note note) {
+    public int saveNote(Note note) throws InvalidUserException {
         // If the note does not have an ID, then a new entry must be added to the DB.
         // Else, the existing note is updated.
         if (note.getId() == null) {
             return noteMapper.insert(note);
         } else {
+            Note existingNote = noteMapper.getNote(note.getId());
+            if (!existingNote.getUserId().equals(note.getUserId())) {
+                throw new InvalidUserException("Note does not belong to current user.");
+            }
             return noteMapper.update(note);
         }
     }
 
-    public int deleteNote(int noteId) {
-        return noteMapper.delete(noteId);
+    public int deleteNote(Note note) throws InvalidUserException {
+        Note existingNote = noteMapper.getNote(note.getId());
+
+        if (!existingNote.getUserId().equals(note.getUserId())) {
+            throw new InvalidUserException("Note does not belong to current user.");
+        }
+
+        return noteMapper.delete(note.getId());
     }
 }

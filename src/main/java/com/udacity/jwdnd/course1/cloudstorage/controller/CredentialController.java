@@ -28,7 +28,7 @@ public class CredentialController {
     }
 
     @PostMapping("/credentials")
-    public String saveCredential(@ModelAttribute("credential") Credential credential, Model model, Authentication auth) {
+    public String saveCredential(@ModelAttribute("credential") Credential credential, Model model, Authentication auth) throws InvalidUserException {
         User currentUser = userService.getUser(auth.getName());
         credential.setUserId(currentUser.getId());
 
@@ -55,13 +55,13 @@ public class CredentialController {
     @PostMapping("/credentials/delete")
     public String deleteCredential(@ModelAttribute("credential") Credential credential, Model model, Authentication auth) throws InvalidUserException {
         User currentUser = userService.getUser(auth.getName());
-        Credential credentialToDelete = credentialService.getCredentialById(credential.getId());
+        credential.setUserId(currentUser.getId());
+        int rowsUpdated = credentialService.deleteCredential(credential);
 
-        if (!credentialToDelete.getUserId().equals(currentUser.getId())) {
-            throw new InvalidUserException("Credential does not belong to current user.");
+        if (rowsUpdated < 1) {
+            throw new RuntimeException("Could not save Credential to DB");
         }
 
-        credentialService.deleteCredential(credential.getId());
         model.addAttribute("success", true);
 
         return "result";

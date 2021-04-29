@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.service;
 
+import com.udacity.jwdnd.course1.cloudstorage.exception.InvalidUserException;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
@@ -26,15 +27,25 @@ public class CredentialService {
         return credentialMapper.getCredential(credentialId);
     }
 
-    public int saveCredential(Credential credential) {
+    public int saveCredential(Credential credential) throws InvalidUserException {
         if (credential.getId() == null) {
             return credentialMapper.insert(credential);
         } else {
+            Credential existingCredential = credentialMapper.getCredential(credential.getId());
+            if (!existingCredential.getUserId().equals(credential.getUserId())) {
+                throw new InvalidUserException("Credential does not belong to current user.");
+            }
+
             return credentialMapper.update(credential);
         }
     }
 
-    public int deleteCredential(int credentialId) {
-        return credentialMapper.delete(credentialId);
+    public int deleteCredential(Credential credential) throws InvalidUserException {
+        Credential existingCredential = credentialMapper.getCredential(credential.getId());
+        if (!existingCredential.getUserId().equals(credential.getUserId())) {
+            throw new InvalidUserException("Credential does not belong to current user.");
+        }
+
+        return credentialMapper.delete(credential.getId());
     }
 }
