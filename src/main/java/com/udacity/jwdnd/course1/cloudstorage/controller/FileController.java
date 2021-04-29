@@ -32,7 +32,12 @@ public class FileController {
     @PostMapping("/files")
     public String uploadFile(@RequestParam("fileUpload")MultipartFile file, Authentication auth, Model model) throws IOException, DuplicateFileNameException {
         User currentUser = userService.getUser(auth.getName());
-        fileService.saveFile(file, currentUser.getId());
+        int rowsUpdated = fileService.saveFile(file, currentUser.getId());
+
+        if (rowsUpdated < 1) {
+            throw new RuntimeException("Could not save File to DB.");
+        }
+
         model.addAttribute("success", true);
 
         return "result";
