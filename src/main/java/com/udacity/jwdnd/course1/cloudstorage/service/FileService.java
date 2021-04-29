@@ -5,6 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.exception.InvalidUserException;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +24,15 @@ public class FileService {
     }
 
     public List<File> getFilesByUsername(String username) {
-        return fileMapper.getFilesByUserId(userMapper.getUser(username).getId());
+        List<File> userFiles = fileMapper.getFilesByUserId(userMapper.getUser(username).getId());
+
+        for (File file: userFiles) {
+            long fileBytes = Long.parseLong(file.getFileSize());
+            String fileDisplaySize = FileUtils.byteCountToDisplaySize(fileBytes);
+            file.setFileSize(fileDisplaySize);
+        }
+
+        return userFiles;
     }
 
     public File getFileById(int fileId) {
