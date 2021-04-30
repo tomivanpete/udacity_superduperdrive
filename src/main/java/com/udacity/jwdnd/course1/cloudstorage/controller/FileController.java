@@ -1,21 +1,21 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.exception.DuplicateFileNameException;
+import com.udacity.jwdnd.course1.cloudstorage.exception.EmptyFileException;
 import com.udacity.jwdnd.course1.cloudstorage.exception.InvalidUserException;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Controller
@@ -30,7 +30,7 @@ public class FileController {
     }
 
     @PostMapping("/files")
-    public String uploadFile(@RequestParam("fileUpload")MultipartFile file, Authentication auth, Model model) throws IOException, DuplicateFileNameException {
+    public String uploadFile(@RequestParam("fileUpload")MultipartFile file, Authentication auth, Model model) throws IOException, DuplicateFileNameException, EmptyFileException {
         User currentUser = userService.getUser(auth.getName());
         int rowsUpdated = fileService.saveFile(file, currentUser.getId());
 
@@ -45,9 +45,13 @@ public class FileController {
 
     @GetMapping("/files/{fileId}")
     @ResponseBody
-    public ResponseEntity<byte[]> getFile(@PathVariable int fileId, Authentication auth) throws InvalidUserException {
+    public HttpEntity<byte[]> getFile(@PathVariable int fileId, Authentication auth, HttpServletResponse response) throws InvalidUserException, FileNotFoundException {
         User currentUser = userService.getUser(auth.getName());
         File file = fileService.getFileById(fileId);
+
+        if (file == null) {
+            throw new FileNotFoundException("File with ID " + fileId + " not found.");
+        }
 
         if (!file.getUserId().equals(currentUser.getId())) {
             throw new InvalidUserException("File does not belong to current user.");
@@ -55,8 +59,9 @@ public class FileController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(file.getContentType()));
+        response.setHeader("Content-Disposition", "attachment; filename=" + file.getFilename());
 
-        return new ResponseEntity<>(file.getFileData(), headers, HttpStatus.OK);
+        return new HttpEntity<>(file.getFileData(), headers);
     }
 
     @PostMapping("/files/delete")

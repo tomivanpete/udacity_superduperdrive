@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.io.FileNotFoundException;
+
 @ControllerAdvice
 public class ExceptionHandlingController {
 
@@ -34,6 +36,13 @@ public class ExceptionHandlingController {
 
     @ExceptionHandler(InvalidUserException.class)
     public String invalidUserExceptionHandler(Model model, InvalidUserException ex) {
+        model.addAttribute("errorWithMsg", true);
+        model.addAttribute("errorMsg", ex.getMessage());
+        return "result";
+    }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    public String fileNotFoundExceptionHandler(Model model, FileNotFoundException ex) {
         model.addAttribute("errorWithMsg", true);
         model.addAttribute("errorMsg", ex.getMessage());
         return "result";
