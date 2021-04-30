@@ -85,9 +85,10 @@ class CloudStorageApplicationTests {
 		driver.get("http://localhost:" + this.port + "/signup");
 		SignupPage signupPage = new SignupPage(driver);
 
-		signupPage.createUser(testUserFirstname, testUserLastname, testUserUsername, testUserPassword);
-		Assertions.assertTrue(signupPage.isSuccessMsgDisplayed());
-		signupPage.clickLoginLink();
+		LoginPage loginPage = signupPage.createUser(testUserFirstname, testUserLastname, testUserUsername, testUserPassword);
+		Assertions.assertNotNull(loginPage);
+		Assertions.assertEquals("Login", driver.getTitle());
+		Assertions.assertEquals("signup-msg", loginPage.getAlertMessageId());
 	}
 
 	@Test
@@ -99,14 +100,15 @@ class CloudStorageApplicationTests {
 
 		signupPage.createUser(testUserFirstname, testUserLastname, testUserUsername, testUserPassword);
 		driver.navigate().refresh();
-		String result = signupPage.createUser(testUserFirstname, testUserLastname, testUserUsername, testUserPassword);
-		Assertions.assertEquals("error-msg", result);
+		LoginPage loginPage = signupPage.createUser(testUserFirstname, testUserLastname, testUserUsername, testUserPassword);
+		Assertions.assertTrue(signupPage.isErrorMsgDisplayed());
+		Assertions.assertNull(loginPage);
 	}
 
 	@Test
 	public void testSignupLoginLogout() {
 		testSignupSuccess();
-		driver.navigate().refresh();
+		driver.get("http://localhost:" + this.port + "/login");
 		LoginPage loginPage = new LoginPage(driver);
 		HomePage homePage = loginPage.loginValidUser(testUserUsername, testUserPassword);
 

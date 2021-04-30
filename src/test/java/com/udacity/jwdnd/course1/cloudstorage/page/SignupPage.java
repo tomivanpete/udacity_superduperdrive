@@ -30,14 +30,8 @@ public class SignupPage {
     @FindBy(className = "alert")
     private WebElement alertMsg;
 
-    @FindBy(id = "success-msg")
-    private WebElement successMsg;
-
     @FindBy(id = "error-msg")
     private WebElement errorMsg;
-
-    @FindBy(id = "login-link")
-    private WebElement loginLink;
 
     public SignupPage(WebDriver driver) {
         this.driver = driver;
@@ -46,7 +40,7 @@ public class SignupPage {
                 .until(ExpectedConditions.visibilityOf(firstNameField));
     }
 
-    public String createUser(String firstName, String lastName, String username, String password) {
+    public LoginPage createUser(String firstName, String lastName, String username, String password) {
         firstNameField.sendKeys(firstName);
         lastNameField.sendKeys(lastName);
         usernameField.sendKeys(username);
@@ -58,24 +52,11 @@ public class SignupPage {
         new WebDriverWait(this.driver, 10)
                 .until(ExpectedConditions.visibilityOf(alertMsg));
 
-        return alertMsg.getAttribute("id");
-    }
-
-    public LoginPage clickLoginLink() {
-        new WebDriverWait(this.driver, 10)
-                .until(ExpectedConditions.elementToBeClickable(loginLink));
-
-        JavascriptExecutor js = (JavascriptExecutor) this.driver;
-        js.executeScript("arguments[0].click()", loginLink);
-
-        new WebDriverWait(driver, 10)
-                .until(ExpectedConditions.titleIs("Login"));
-
-        return new LoginPage(driver);
-    }
-
-    public boolean isSuccessMsgDisplayed() {
-        return successMsg.isDisplayed();
+        if (driver.getTitle().equals("Login")) {
+            return new LoginPage(driver);
+        } else {
+            return null;
+        }
     }
 
     public boolean isErrorMsgDisplayed() {
